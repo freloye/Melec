@@ -192,6 +192,40 @@
     .fade-in{
       animation:fadeIn .45s ease both;
     }
+    .prismelec {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+}
+
+.prismelec::after {
+  content: "PRISMElec";
+  position: absolute;
+  inset: 0;
+
+  background: linear-gradient(
+    110deg,
+    transparent 0%,
+    transparent 42%,
+    rgba(255,255,255,0.75) 50%,
+    transparent 58%,
+    transparent 100%
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  animation: prismLight 5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes prismLight {
+  0% { transform: translateX(-120%); opacity: 0; }
+  20% { opacity: 0; }
+  45% { opacity: 1; }
+  65% { opacity: 0; }
+  100% { transform: translateX(120%); opacity: 0; }
+}
 
  .cover.playing {
   animation: spinDisc 6s linear infinite;
