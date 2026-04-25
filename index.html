@@ -193,10 +193,14 @@
       animation:fadeIn .45s ease both;
     }
 
-    @keyframes fadeIn{
-      from{opacity:0; transform:translateY(10px)}
-      to{opacity:1; transform:translateY(0)}
-    }
+ .cover.playing {
+  animation: spinDisc 6s linear infinite;
+}
+
+@keyframes spinDisc {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
 
     @media (max-width:820px){
       .home, .player{
@@ -297,6 +301,8 @@
     const trackTitle = document.getElementById("trackTitle");
     const trackText = document.getElementById("trackText");
     const trackCover = document.getElementById("trackCover");
+    audioPlayer.onpause = () => trackCover.classList.remove("playing");
+audioPlayer.onplay = () => trackCover.classList.add("playing");
 
     function openTrack(id){
       const t = tracks[id];
@@ -308,6 +314,7 @@
       trackCover.alt = "Pochette " + t.title;
       trackTitle.textContent = t.title;
       trackText.textContent = t.text;
+      trackCover.classList.add("playing");
 
       homeScreen.style.display = "none";
       playerScreen.style.display = "flex";
@@ -322,6 +329,7 @@
       audioPlayer.currentTime = 0;
       playerScreen.style.display = "none";
       homeScreen.style.display = "flex";
+      trackCover.classList.remove("playing");
     }
   </script>
 
