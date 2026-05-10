@@ -1,16 +1,14 @@
-<!-- Colle ce fichier complet comme index.html -->
-<!-- Les fichiers SRT doivent être nommés :
-chanson-eleve.srt
-chanson-prof.srt
-chanson-systeme.srt
--->
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Projet MELEC — PRISMElec</title>
+
+<meta property="og:title" content="Projet MELEC — PRISMElec" />
+<meta property="og:description" content="Trois chansons, une même situation vue par trois facettes : Élève, Prof, Système." />
+<meta property="og:image" content="pochette-melec.png" />
+<meta property="og:type" content="music.song" />
 
 <style>
 :root{
@@ -43,6 +41,17 @@ body::before{
   filter:blur(18px) brightness(.55);
   transform:scale(1.08);
   z-index:-2;
+}
+
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(circle at center, rgba(255,255,255,.08), transparent 38%),
+    linear-gradient(to bottom, rgba(0,0,0,.1), rgba(0,0,0,.75));
+  z-index:-1;
+  pointer-events:none;
 }
 
 .screen{
@@ -166,6 +175,13 @@ button{
   font-weight:800;
   color:#fff;
   background:linear-gradient(135deg,rgba(216,180,106,.95),rgba(138,164,255,.82));
+  box-shadow:0 12px 28px rgba(0,0,0,.32);
+  transition:transform .18s ease, filter .18s ease;
+}
+
+button:hover{
+  transform:translateY(-2px);
+  filter:brightness(1.08);
 }
 
 button.secondary{
@@ -228,23 +244,28 @@ audio{
   }
 
   .cover-wrap{
-    padding:20px 20px 0;
+    padding:18px 18px 0;
   }
 
   .cover{
-    max-width:260px;
+    max-width:245px;
   }
 
   .content{
-    padding:24px;
+    padding:22px;
     text-align:center;
-    gap:14px;
+    gap:13px;
+  }
+
+  h1,h2{
+    font-size:clamp(2rem,10vw,3.4rem);
   }
 
   .lyrics-box{
-    min-height:170px;
-    max-height:210px;
-    font-size:1rem;
+    min-height:185px;
+    max-height:230px;
+    font-size:.98rem;
+    line-height:1.5;
     text-align:left;
   }
 
@@ -356,10 +377,11 @@ function openTrack(id){
   currentSubtitleIndex = -1;
 
   fetch(t.srt)
-    .then(response => response.text())
+    .then(response => response.arrayBuffer())
+    .then(buffer => new TextDecoder("utf-8").decode(buffer))
     .then(data => {
       subtitles = parseSRT(data);
-      lyricsBox.textContent = "Lecture prête.";
+      lyricsBox.textContent = subtitles.length ? "Lecture prête." : "SRT vide ou invalide.";
     })
     .catch(() => {
       lyricsBox.textContent = "Paroles non disponibles.";
@@ -391,10 +413,10 @@ function parseSRT(data){
     .trim()
     .split(/\n\s*\n/)
     .map(block => {
-      const lines = block.split("\n");
+      const lines = block.split("\n").filter(line => line.trim() !== "");
       if(lines.length < 3) return null;
 
-      const timeLine = lines[1];
+      const timeLine = lines[1].trim();
       const parts = timeLine.split(" --> ");
       if(parts.length !== 2) return null;
 
@@ -418,7 +440,6 @@ function toSeconds(time){
 
 audioPlayer.ontimeupdate = () => {
   const t = audioPlayer.currentTime;
-
   const index = subtitles.findIndex(sub => t >= sub.start && t <= sub.end);
 
   if(index !== -1 && index !== currentSubtitleIndex){
